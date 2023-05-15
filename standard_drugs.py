@@ -1,23 +1,9 @@
+
 import constant as const
-import requests
-from selenium.webdriver.support import expected_conditions as EC
-from selenium import webdriver
-# from selenium.webdriver.chrome.service import Service as ChromeService
-# from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from bs4 import  BeautifulSoup
-# from selenium.webdriver.edge import service
-import time
-from selenium.webdriver.support.wait import WebDriverWait
-from parent import PARENT
-# import pysnooper
 
 
 
-
-class DRUG(PARENT):
-
+class STANDARD_DRUGS:
     data={}
 
     def land_first_page(self):
@@ -52,9 +38,3 @@ class DRUG(PARENT):
         if not len(self.data) :
             self.get_name_and_active_ingredient()
         return self.data
-
-
-    #----------------------------add standard drugs---------------------------------------------------------------------
-    def run_add_drugs_db(self,drug):
-            self.con.insert('prescription_standarddrugs','id,name,activeIngredient_id',(self.hashing(drug),drug,self.hashing(self.data[drug])))
-    #------------------------------------------------------------------------------------------------------------------

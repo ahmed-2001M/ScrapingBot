@@ -19,7 +19,7 @@ class DB:
                 'user': 'root',
                 'password': '',
                 'host': '127.0.0.1',
-                'database': 'db55'
+                'database': 'db00'
                 }
         self.conn = self.connect()
         self.cursor = self.conn.cursor()
@@ -74,7 +74,7 @@ class DB:
             print(e)
         
         
-
+        
         self.conn.commit()
         
     
