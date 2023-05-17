@@ -1,43 +1,33 @@
 
 ```mermaid
+
 graph TD;
+    A[Start] --> B{Are drugs provided?};
+    B -- No --> C[Get drugs from website];
+    B -- Yes --> D[Use provided drugs];
+    D --> E{Is active ingredient in database?};
+    E -- Yes --> F[Save drug];
+    E -- No --> G[Get active ingredient];
+    G --> H[Get ingredient interaction with other ingredients];
+    H -- Yes --> F;
+    H -- No --> K[Save active ingredient];
+    K --> L[Get ingredient interaction with other ingredients];
+    L -- Yes --> F;
+    L -- No --> M[Save active ingredient];
+    M --> N[Get ingredient interactions];
+    N -- Has Interactions --> T[Scrap interactions];
+    N -- No Interactions --> U[Skip Interaction Scraping];
+    T --> V[Get Side Effects];
+    V --> W[Get Drug Uses];
+    W --> X[Get Drug Warnings];
+    X --> Y[Get Drug Overdose Information];
+    Y --> Z[Get Drug Missed Dose Information];
+    Z --> AA[Get Drug Administration Information];
+    AA --> AB[Get Drug What to Avoid Information];
+    AB --> AC[Get Drug Before Taking Information];
+    AC --> AD[Add drug to database];
+    AD --> AE[End];
+    U --> V;
 
 
-A[Get Drugs] -- Yes --> B[Check if active ingredient exists];
-A -- No --> C[Get Active Ingredient];
-
-B -- Yes --> D[Save Drug];
-B -- No --> E[Get Interaction with other ingredients];
-E -- Yes --> F[Save Drug];
-E -- No --> G[Get Interaction with other ingredients];
-
-G -- Yes --> H[Save Drug];
-G -- No --> I[Scrap Interactions];
-
-C --> J[Get Drugs];
-
-J --> |Loop| K(Get Drug);
-K -- Yes --> L[Set Drug, Land First Page];
-L --> M[Search Drug];
-M --> N[Close Small PopUp];
-N --> O[Close PopUp];
-O --> P[Click Interaction];
-P --> Q[Close Small PopUp];
-Q --> R[Close PopUp];
-
-I --> M;
-
-R --> S[Click On Interaction Number];
-S --> T[Close Small PopUp];
-T --> U[Close PopUp];
-U -- Yes --> V[Scrap Interactions];
-V -- No --> W[Get Side Effects];
-W --> X[Drug Uses];
-X --> Y[Drug Warnings];
-Y --> Z[Drug Overdose];
-Z --> AA[Drug Missed Dose];
-AA --> AB[Drug How To Take];
-AB --> AC[Drug What To Avoid];
-AC --> AD[Drug Before Taking];
-AD --> AE[Add Drug To DB];
 ```
