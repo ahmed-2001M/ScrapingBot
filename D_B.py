@@ -1,3 +1,5 @@
+
+
 import mysql.connector as connector
 
 
@@ -19,7 +21,7 @@ class DB:
                 'user': 'root',
                 'password': '',
                 'host': '127.0.0.1',
-                'database': 'db00'
+                'database': 'cow'
                 }
         self.conn = self.connect()
         self.cursor = self.conn.cursor()
@@ -55,9 +57,9 @@ class DB:
         query = "INSERT INTO {} ({}) VALUES ({});".format(table_name, column_names, ",".join(["%s"]*len(values)))
         try:
             self.cursor.execute(query, values)
+            self.conn.commit()
         except connector.Error as e:
                 print(e)
-        self.conn.commit()
         return self.cursor.lastrowid
     
     
@@ -66,16 +68,13 @@ class DB:
         # if not where:
         SQL= (row)%data
         
-        print('HOW'*50)
-        print(SQL)
         try:
             self.cursor.execute(SQL)
+            self.conn.commit()
         except connector.Error as e:
             print(e)
         
         
-        
-        self.conn.commit()
         
     
 

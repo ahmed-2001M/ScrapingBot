@@ -1,8 +1,8 @@
 
-from parent import PARENT
-from interaction import INTERACTION
-from description import DESCRIPTION
-from D_B import DB
+from . parent import PARENT
+from . interaction import INTERACTION
+from . description import DESCRIPTION
+from . D_B import DB
 from selenium.webdriver.common.by import By
 
 
@@ -16,7 +16,7 @@ class DRUG():
         self.__drug = None
         self.description = DESCRIPTION()
         self.interaction = INTERACTION(self.parent)
-        self.drugs_names = []
+        # self.drugs_names = []
     
     
 
@@ -27,12 +27,12 @@ class DRUG():
         return self.__drug
 
 
-    # def get_db_ingredients(self):
-    #     db_ingredients=[]
-    #     self.db.cursor.execute('select name from prescription_active_ingredient where if_interaction_exist = 1;')
-    #     db_ingredients = [i[0] for i in self.db.cursor.fetchall()]
     def is_ingredient_has_None(self,ingredient):
         status=None
+        try:
+            self.con.cursor.fetchall()
+        except:
+            pass
         self.con.cursor.execute(f"SELECT if_interaction_exist FROM prescription_active_ingredient WHERE name = '{ingredient}'")
         status = self.con.cursor.fetchone()
         if status :
@@ -44,6 +44,10 @@ class DRUG():
             return False
     def is_ingredient_has_0(self,ingredient):
         status=None
+        try:
+            self.con.cursor.fetchall()
+        except:
+            pass
         self.con.cursor.execute(f"SELECT if_interaction_exist FROM prescription_active_ingredient WHERE name = '{ingredient}' and if_interaction_exist = 0")
         status = self.con.cursor.fetchone()
         if status :
@@ -55,6 +59,10 @@ class DRUG():
     
     def is_ingredient_has_1(self,ingredient):
         status=None
+        try:
+            self.con.cursor.fetchall()
+        except:
+            pass
         self.con.cursor.execute(f"SELECT if_interaction_exist FROM prescription_active_ingredient WHERE name = '{ingredient}' and if_interaction_exist = 1")
         status = self.con.cursor.fetchone()
         if status :
@@ -72,22 +80,23 @@ class DRUG():
 
         if self.is_ingredient_has_None(self.interaction.ingredient):
             self.con.insert('prescription_active_ingredient','id,name,if_interaction_exist',(self.parent.hashing(self.interaction.ingredient),self.interaction.ingredient,1))
-        elif self.is_ingredient_has_0(self.interaction.active_ingredient):
+        elif self.is_ingredient_has_0(self.interaction.ingredient):
             self.con.raw(""" UPDATE `prescription_active_ingredient`SET `if_interaction_exist` = '%s'WHERE name = '%s'; """,(1,self.interaction.ingredient))
             
 
     def __add_ingredient_and_interactions(self):
-        for ingredient, description in self.interaction.major_interactions.items():
+        
+        for ingredient, description in self.interaction.major_interactions:
             if self.is_ingredient_has_None(ingredient):
                 self.con.insert('prescription_active_ingredient','id,name,if_interaction_exist',(self.parent.hashing(ingredient),ingredient,0))
             self.con.insert('prescription_ingredient_interaction','description,first_id,second_id,status_id',(description,self.parent.hashing(self.interaction.ingredient),self.parent.hashing(ingredient), 2))
         
-        for ingredient, description in self.interaction.moderate_interactions.items():
+        for ingredient, description in self.interaction.moderate_interactions:
             if self.is_ingredient_has_None(ingredient):
                 self.con.insert('prescription_active_ingredient','id,name,if_interaction_exist',(self.parent.hashing(ingredient),ingredient,0))
             self.con.insert('prescription_ingredient_interaction','description,first_id,second_id,status_id',(description,self.parent.hashing(self.interaction.ingredient),self.parent.hashing(ingredient), 1))
 
-        for ingredient, description in self.interaction.minor_interactions.items():
+        for ingredient, description in self.interaction.minor_interactions:
             if self.is_ingredient_has_None(ingredient):
                 self.con.insert('prescription_active_ingredient','id,name,if_interaction_exist',(self.parent.hashing(ingredient),ingredient,0))
             self.con.insert('prescription_ingredient_interaction','description,first_id,second_id,status_id',(description,self.parent.hashing(self.interaction.ingredient),self.parent.hashing(ingredient), 0))
@@ -107,21 +116,21 @@ class DRUG():
     
     
     
-    def split_name_from_active_ingredient(self,txt):
-        drug,active_ingredient= txt.split('(')[:2]
-        active_ingredient = active_ingredient.split('-')[0]
-        active_ingredient= active_ingredient.split(' ')[0]
-        if active_ingredient[-1] ==')':
-            active_ingredient = active_ingredient[:-1]
-        return [drug.strip(), active_ingredient.strip()]
+    # def split_name_from_active_ingredient(self,txt):
+    #     drug,active_ingredient= txt.split('(')[:2]
+    #     active_ingredient = active_ingredient.split('-')[0]
+    #     active_ingredient= active_ingredient.split(' ')[0]
+    #     if active_ingredient[-1] ==')':
+    #         active_ingredient = active_ingredient[:-1]
+    #     return [drug.strip(), active_ingredient.strip()]
     
 
-    def get_name_and_active_ingredient(self):
-        res= self.driver.find_elements(By.XPATH,"//ul[@class='drugs-list']/li/h4/a")
-        for i in res:
-            name, _= self.split_name_from_active_ingredient(i.text)
-            self.drugs_names.append(name.lower())
-        return self.drugs_names
+    # def get_name_and_active_ingredient(self):
+    #     res= self.driver.find_elements(By.XPATH,"//ul[@class='drugs-list']/li/h4/a")
+    #     for i in res:
+    #         name, _= self.split_name_from_active_ingredient(i.text)
+    #         self.drugs_names.append(name.lower())
+    #     return self.drugs_names
         
     
 

@@ -1,19 +1,28 @@
-from selenium.webdriver.support import expected_conditions as EC
+# from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-from parent import PARENT
+from . parent import PARENT
+# from selenium.webdriver.support.ui import WebDriverWait
 import time
-from selenium.webdriver.support.ui import WebDriverWait
-
 
 class INTERACTION():
     def __init__(self,parent = PARENT()):
         self.parent = parent
         self.driver = self.parent.driver
         
-        self.ingredient = None
-        self.major_interactions = {}
-        self.minor_interactions = {}
-        self.moderate_interactions ={}
+        self._ingredient = None
+        self.major_interactions = []
+        self.minor_interactions = []
+        self.moderate_interactions =[]
+
+    @property
+    def ingredient(self):
+        return self._ingredient
+
+    @ingredient.setter
+    def ingredient(self, val):
+        if val :
+            val = val.lower().replace('-',' ')
+        self._ingredient = val
 
     def click_interaction(self):
         try:
@@ -24,13 +33,14 @@ class INTERACTION():
             print(self.ingredient)
             link.click()
         except:
-            return 'Can\'t get this drug!'
+            return 0
     # click_on_interaction_number______________________________________________________________________________________________________________________________________
     def click_on_interaction_number(self):
         try:
             self.driver.find_element(By.XPATH, '//*[@id="content"]/div[2]/ul[1]/li[1]/a').click()
         except Exception as error:
             print(error)
+            return 0
             
 
     def getIntSource(self, clas):
@@ -65,19 +75,21 @@ class INTERACTION():
         return p
 
     def validate_header(self,header):
-        txt= header.strip().split(' ')
-        if self.ingredient not in txt:
+        txt= header.lower().replace('-',' ').strip()
+        
+        # print(txt.split(' '))
+        if self.ingredient.split(' ')[0] not in txt.split(' '):
             return [False]
         else:
-            txt = ' '.join(txt)
+            # txt = ' '.join(txt)
             txt= txt.replace(self.ingredient,'').strip()
+            txt = txt.replace('\'' , ' i')
             return [True,txt]
-
 
     def validate_interaction(self,interactions,parent):
         ans=''
         for i in interactions:
-            if i.parent == parent:
+            if i.find_element_by_xpath("..") == parent.find_element_by_xpath(".."):
                 interaction= i.text
                 if interaction[:8] != 'Consumer' or interaction[:6] != 'Switch' or interaction[:11] != 'Information':
                     ans+='      '+interaction
@@ -85,15 +97,20 @@ class INTERACTION():
 
     def prepare_data(self):
         header = self.get_header()
+        # print(header[0].text)
         interactions = self.get_interaction()
-        res= {}
+        res= []
         for h,i in zip(header,interactions):
             res_h= self.validate_header(h.text)
             if not res_h[0]:
                 continue
             second_ingredient= res_h[1]
-            description= self.validate_interaction(interactions,h.parent)
-            res[second_ingredient]=description.strip()
+            description= self.validate_interaction(interactions,h.find_element_by_xpath(".."))
+            res.append((second_ingredient , description.strip()))
+        #     print(second_ingredient)
+        #     print('-'*50)
+        #     print(description)
+        # print('#'*200)
         return res
 
 
@@ -198,31 +215,41 @@ class INTERACTION():
         links_3 = self.getIntLinks('int_3')
         links_2 = self.getIntLinks('int_2')
         links_1 = self.getIntLinks('int_1')
+        ln = (len(links_1) + len(links_2) + len(links_3))
         c=0
     # Major
+        flag = 0
         for link in links_3:
-            self.driver.get(link)
-            self.parent.closeSmallPopUp()
-            self.major_interactions.update(self.prepare_data())
-            c+=1
-            print(c)
+            try:
+                c += 1
+                print(f'{c} from {ln}')
+                self.driver.execute_script(f"window.location.href = '{link}';")
+                self.major_interactions +=self.prepare_data()
+            except Exception as error:
+                print(error)
+                return 0
 
     # Moderate
         for link in links_2:
-            self.driver.get(link)
-            self.parent.closeSmallPopUp()
-            self.moderate_interactions = self.prepare_data()
-            c+=1
-            print(c)
+            try:
+                self.driver.execute_script(f"window.location.href = '{link}';")
+                self.moderate_interactions+=self.prepare_data()
+                c+=1
+                print(f'{c} from {ln}')
+            except Exception as error:
+                print(error)
+                return 0
 
     # Minor
         for link in links_1:
-            self.driver.get(link)
-            self.parent.closeSmallPopUp()
-            self.minor_interactions = self.prepare_data()
-            c+=1
-            print(c)
-
+            try:
+                self.driver.execute_script(f"window.location.href = '{link}';")
+                self.minor_interactions+=self.prepare_data()
+                c+=1
+                print(f'{c} from {ln}')
+            except Exception as error:
+                print(error)
+                return 0
 
     #------------------------------------------------------------------------------------------------------------------
 
