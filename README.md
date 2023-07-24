@@ -1,33 +1,125 @@
+class diagrame
+---
+---
 
 ```mermaid
 
-graph TD;
-    A[Start] --> B{Are drugs provided?};
-    B -- No --> C[Get drugs from website];
-    B -- Yes --> D[Use provided drugs];
-    D --> E{Is active ingredient in database?};
-    E -- Yes --> F[Save drug];
-    E -- No --> G[Get active ingredient];
-    G --> H[Get ingredient interaction with other ingredients];
-    H -- Yes --> F;
-    H -- No --> K[Save active ingredient];
-    K --> L[Get ingredient interaction with other ingredients];
-    L -- Yes --> F;
-    L -- No --> M[Save active ingredient];
-    M --> N[Get ingredient interactions];
-    N -- Has Interactions --> T[Scrap interactions];
-    N -- No Interactions --> U[Skip Interaction Scraping];
-    T --> V[Get Side Effects];
-    V --> W[Get Drug Uses];
-    W --> X[Get Drug Warnings];
-    X --> Y[Get Drug Overdose Information];
-    Y --> Z[Get Drug Missed Dose Information];
-    Z --> AA[Get Drug Administration Information];
-    AA --> AB[Get Drug What to Avoid Information];
-    AB --> AC[Get Drug Before Taking Information];
-    AC --> AD[Add drug to database];
-    AD --> AE[End];
-    U --> V;
+classDiagram
+
+    DRUG o-- DESCRIPTION
+    DRUG o-- INTERACTION
+    DRUG *-- DB
+    DRUG *-- UTILITY
+    RUN *-- DRUG
 
 
+    class DB {
+        - instance: None
+        - config: dict
+        - conn: connection
+        - cursor: cursor
+        + __new__(*args, **kwargs): DB
+        + __init__(self): None
+        + connect(self): connection
+        + close(self): None
+        + select(self, fields, table): list
+        + insert(self, table_name, column_names, values): int
+        + raw(self,row,data): None
+    }
+
+
+
+    class UTILITY{
+        ~instance 
+        ~wait
+        ~open()
+        +landFirstPage()
+        +search()
+        +back()
+        +closePopUp()
+        +closeSmallPopUp()
+        +hashing(txt)
+    }
+    
+    class INTERACTION{
+        +click_interaction() ---->click interaction link
+        +get_interaction_drugs() ------> click links block
+        +get_name_of_active_ingredient()
+        -getIntSource(clas)
+        -getIntText(clas)
+        -getIntLinks(clas)
+        -validDescription(txt)
+        -getInteractionDescription()
+        -active_ingredient() ingredient
+        +getDrugInteraction(drug_name)
+        
+    }
+
+    class DESCRIPTION{
+        - parent: PARENT
+        - driver: WebDriver
+        - drug_name: str
+        - side_effects: str
+        - uses: str
+        - warnings: str
+        - before_taking: str
+        - how_to_take: str
+        - miss_dose: str
+        - overdose: str
+        - what_to_avoid: str
+        + __init__(self, parent: PARENT): None
+        + clickFirstLink(self): str
+        + clickSideEffectLink(self): None
+        + text_validation(self, txt: str): str
+        + get_side_effects(self): None
+        + drug_uses(self): None
+        + drug_warnings(self): None
+        + drug_before_taking(self): None
+        + drug_how_to_take(self): None
+        + drug_missed_dose(self): None
+        + drug_overdose(self): None
+        + drug_what_to_avoid(self): None
+    }
+
+    class DRUG{
+        - parent: PARENT
+        - con: DB
+        - driver: WebDriver
+        - __drug: str
+        - description: DESCRIPTION
+        - interaction: INTERACTION
+        + SetDrug(self, drug: str): None
+        + GetDrug(self): str
+        + is_ingredient_has_None(self, ingredient: str): bool
+        + is_ingredient_has_0(self, ingredient: str): bool
+        + is_ingredient_has_1(self, ingredient: str): bool
+        - __add_drug_ingredient_to_db(self): None
+        - __add_ingredient_and_interactions(self): None
+        - __add_drug_description(self): None
+        + add_drug_to_db(self): None
+    }
+    
+
+    class RUN{
+        + prepare_drugs()
+    }
+```
+
+---
+Flow chart
+---
+---
+
+```mermaid
+graph TD
+B((Start))
+    B --> C{get Drug }
+    C -->|One| D[from website in constant file]
+    C -->|Two| E[drugs from user]
+    D --> F{is active ingredient in db?}
+    F --> |Yes| f[Save drug]
+    F --> |No| G[get ingredient interaction with other ingredients ]
+    G -->g[Save drug]
+    g --> e((End))
+    f --> z((End))
 ```
